@@ -25,7 +25,8 @@
   }
 
   *{box-sizing:border-box;}
-  html{-webkit-text-size-adjust:100%;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto;} }
   body{
     margin:0;
     background:var(--bg);
@@ -73,6 +74,7 @@
     background:var(--bg);
     border-bottom:1px solid var(--line);
   }
+  section[id]{scroll-margin-top:88px;}
   .header-row{
     display:flex;align-items:center;justify-content:space-between;
     height:72px;gap:24px;
