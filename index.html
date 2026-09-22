@@ -312,6 +312,12 @@
   .quality-item .d{font-size:0.8rem;color:var(--ink-soft);margin-top:2px;}
 
   /* ---------- reviews ---------- */
+  .review-toolbar{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
+  .review-toolbar .field{flex:1;min-width:180px;}
+  .review-toolbar select{
+    font-family:inherit;font-size:0.88rem;font-weight:500;padding:9px 10px;
+    border-radius:8px;border:1.5px solid var(--line);background:var(--surface-alt);color:var(--ink);width:100%;
+  }
   .review-layout{display:grid;grid-template-columns:340px 1fr;gap:28px;align-items:start;}
   @media (max-width:820px){ .review-layout{grid-template-columns:1fr;} }
   .review-form{
@@ -580,10 +586,25 @@
         <h2>Quem treina, confirma</h2>
         <p id="reviewsSummary">Avaliações reais de quem compra com a gente.</p>
       </div>
+      <div class="review-toolbar">
+        <label class="field"><span>Produto</span>
+          <select id="reviewFilterProduct"><option value="">Todos os produtos</option></select>
+        </label>
+        <label class="field"><span>Ordenar por</span>
+          <select id="reviewSort">
+            <option value="recent">Mais recentes</option>
+            <option value="rating-desc">Maior nota</option>
+            <option value="rating-asc">Menor nota</option>
+          </select>
+        </label>
+      </div>
       <div class="review-layout">
         <form id="reviewForm" class="review-form">
           <h3>Deixe sua avaliação</h3>
           <label class="field"><span>Nome</span><input type="text" name="nome" required maxlength="60" autocomplete="name"></label>
+          <label class="field"><span>Produto (opcional)</span>
+            <select name="produto" id="reviewProductSelect"><option value="">Geral / outro</option></select>
+          </label>
           <div class="field">
             <span>Sua nota</span>
             <div class="star-input" id="starInput">
@@ -1066,8 +1087,20 @@
     var submitBtn = document.getElementById('reviewSubmitBtn');
     var listEl = document.getElementById('reviewsList');
     var summaryEl = document.getElementById('reviewsSummary');
+    var filterEl = document.getElementById('reviewFilterProduct');
+    var sortEl = document.getElementById('reviewSort');
+    var productSelectEl = document.getElementById('reviewProductSelect');
     var selectedRating = 0;
     var reviewsCol = null;
+    var localMode = false;
+    var allReviews = [];
+
+    PRODUCTS.forEach(function(p){
+      var opt1 = document.createElement('option'); opt1.value = p.name; opt1.textContent = p.name;
+      filterEl.appendChild(opt1);
+      var opt2 = document.createElement('option'); opt2.value = p.name; opt2.textContent = p.name;
+      productSelectEl.appendChild(opt2);
+    });
 
     function paintStars(rating){
       starBtns.forEach(function(btn){
@@ -1099,49 +1132,98 @@
       return 'há ' + Math.floor(months / 12) + ' ano(s)';
     }
 
-    function renderReviews(docs){
-      if(docs.length === 0){
-        listEl.innerHTML = '<p class="review-empty">Ainda não tem avaliação por aqui — seja a primeira pessoa a avaliar.</p>';
-        summaryEl.textContent = 'Avaliações reais de quem compra com a gente.';
+    var LOCAL_KEY = 'meta-suplementos-reviews';
+    function loadLocal(){
+      try{
+        var arr = JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]');
+        return Array.isArray(arr) ? arr : [];
+      }catch(e){ return []; }
+    }
+    function saveLocal(arr){
+      try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(arr)); }catch(e){}
+    }
+
+    function updateSummary(){
+      if(allReviews.length === 0){
+        summaryEl.textContent = 'Nenhuma avaliação ainda — seja a primeira pessoa a avaliar.';
         return;
       }
-      var total = 0;
-      var html = docs.map(function(doc){
-        var d = doc.data();
-        total += Number(d.rating) || 0;
+      var total = allReviews.reduce(function(s, r){ return s + (Number(r.rating) || 0); }, 0);
+      var avg = (total / allReviews.length).toFixed(1);
+      summaryEl.textContent = avg + ' de 5 · ' + allReviews.length + (allReviews.length === 1 ? ' avaliação' : ' avaliações');
+    }
+
+    function emptyMessage(){
+      if(allReviews.length === 0){
+        return 'Ainda não há avaliações por aqui — seja a primeira pessoa a avaliar.';
+      }
+      if(filterEl.value){
+        return 'Ainda não há avaliações para "' + filterEl.value + '" — seja o primeiro a avaliar.';
+      }
+      return 'Nenhuma avaliação encontrada para esse filtro.';
+    }
+
+    function renderList(){
+      var items = allReviews.slice();
+      if(filterEl.value){
+        items = items.filter(function(r){ return r.product === filterEl.value; });
+      }
+      var sortMode = sortEl.value;
+      if(sortMode === 'rating-desc'){
+        items.sort(function(a,b){ return (Number(b.rating)||0) - (Number(a.rating)||0); });
+      } else if(sortMode === 'rating-asc'){
+        items.sort(function(a,b){ return (Number(a.rating)||0) - (Number(b.rating)||0); });
+      } else {
+        items.sort(function(a,b){ return new Date(b.createdAt) - new Date(a.createdAt); });
+      }
+      if(items.length === 0){
+        listEl.innerHTML = '<p class="review-empty">' + emptyMessage() + '</p>';
+        return;
+      }
+      var html = items.map(function(r){
         return (
           '<div class="testi">' +
-            '<div class="stars">' + starGlyphs(d.rating) + '</div>' +
-            '<p>"' + String(d.comment || '').replace(/</g, '&lt;') + '"</p>' +
+            '<div class="stars">' + starGlyphs(r.rating) + '</div>' +
+            (r.product ? '<span class="card-cat">' + String(r.product).replace(/</g, '&lt;') + '</span>' : '') +
+            '<p>"' + String(r.comment || '').replace(/</g, '&lt;') + '"</p>' +
             '<div class="testi-who">' +
-              '<div class="avatar">' + initials(String(d.name || '?')) + '</div>' +
-              '<div><div class="name">' + String(d.name || 'Cliente') + '</div><div class="meta">' + timeAgo(d.createdAt) + '</div></div>' +
+              '<div class="avatar">' + initials(String(r.name || '?')) + '</div>' +
+              '<div><div class="name">' + String(r.name || 'Cliente') + '</div><div class="meta">' + timeAgo(r.createdAt) + '</div></div>' +
             '</div>' +
           '</div>'
         );
       }).join('');
       listEl.innerHTML = html;
       listEl.querySelectorAll('.testi').forEach(function(el, i){ reveal(el, i % 8); });
-      var avg = (total / docs.length).toFixed(1);
-      summaryEl.textContent = avg + ' de 5 · ' + docs.length + (docs.length === 1 ? ' avaliação' : ' avaliações');
     }
 
+    function onData(items){
+      allReviews = items;
+      updateSummary();
+      renderList();
+    }
+
+    filterEl.addEventListener('change', renderList);
+    sortEl.addEventListener('change', renderList);
+
     async function initReviews(){
-      if(typeof claude === 'undefined' || !claude.use){
-        listEl.innerHTML = '<p class="review-empty">Avaliações indisponíveis neste momento.</p>';
-        return;
+      if(typeof claude !== 'undefined' && claude.use){
+        try{
+          var db = await claude.use('db');
+          if(db){
+            reviewsCol = db.collection('reviews');
+            reviewsCol.orderBy('createdAt', 'desc').limit(200).onSnapshot(function(snap){
+              onData(snap.docs.map(function(d){ return d.data(); }));
+            }, function(err){
+              localMode = true;
+              onData(loadLocal());
+            });
+            return;
+          }
+        }catch(e){}
       }
-      var db = await claude.use('db');
-      if(!db){
-        listEl.innerHTML = '<p class="review-empty">Avaliações indisponíveis neste momento.</p>';
-        return;
-      }
-      reviewsCol = db.collection('reviews');
-      reviewsCol.orderBy('createdAt', 'desc').limit(50).onSnapshot(function(snap){
-        renderReviews(snap.docs);
-      }, function(err){
-        listEl.innerHTML = '<p class="review-empty">Não deu pra carregar as avaliações agora.</p>';
-      });
+      localMode = true;
+      onData(loadLocal());
     }
     initReviews();
 
@@ -1150,20 +1232,24 @@
       errorEl.hidden = true;
       var name = form.nome.value.trim();
       var comment = form.comentario.value.trim();
+      var product = productSelectEl.value;
       if(!name || !comment || selectedRating === 0){
         errorEl.textContent = 'Preencha nome, nota e comentário antes de enviar.';
         errorEl.hidden = false;
         return;
       }
-      if(!reviewsCol){
-        errorEl.textContent = 'Avaliações indisponíveis neste momento. Tente de novo mais tarde.';
-        errorEl.hidden = false;
-        return;
-      }
       submitBtn.disabled = true;
       submitBtn.textContent = 'Enviando…';
+      var entry = {name: name, rating: selectedRating, comment: comment, product: product, createdAt: new Date().toISOString()};
       try{
-        await reviewsCol.add({name: name, rating: selectedRating, comment: comment, createdAt: new Date().toISOString()});
+        if(reviewsCol && !localMode){
+          await reviewsCol.add(entry);
+        } else {
+          var arr = loadLocal();
+          arr.unshift(entry);
+          saveLocal(arr);
+          onData(arr);
+        }
         form.reset();
         selectedRating = 0;
         paintStars(0);
