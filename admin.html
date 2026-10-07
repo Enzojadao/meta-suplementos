@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Painel do Dono · Meta Suplementos</title>
+<link rel="icon" type="image/png" href="/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    --bg:#000000;
+    --surface:#121212;
+    --surface-alt:#1a1a1a;
+    --field:#0b0b0b;
+    --ink:#f5f5f3;
+    --ink-soft:#b3b3b0;
+    --ink-faint:#7a7a77;
+    --accent:#e8342a;
+    --accent-ink:#fff5f2;
+    --line:#2a2a2a;
+    --line-strong:#4a4a48;
+    --success:#58a97e;
+    --danger:#ff6b61;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;font-size:15px;line-height:1.45;
+  }
+  button,input,select{font:inherit;color:inherit;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  [hidden]{display:none !important;}
+  .wrap{max-width:920px;margin:0 auto;padding:0 16px;}
+  h1,h2{font-family:'Big Shoulders Display','Arial Narrow',sans-serif;text-transform:uppercase;font-weight:800;letter-spacing:.01em;margin:0;line-height:1;}
+  .mono{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 16px;border-radius:8px;border:1.5px solid var(--line-strong);
+    background:var(--surface-alt);color:var(--ink);font-weight:600;font-size:.88rem;
+    cursor:pointer;text-decoration:none;white-space:nowrap;
+  }
+  .btn:hover{border-color:var(--ink-soft);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .btn.accent{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+  .btn.ghost{background:transparent;}
+  .btn.small{padding:6px 10px;font-size:.8rem;}
+  .btn.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 45%,transparent);background:transparent;}
+  .btn.danger.armed{background:var(--danger);color:#1a0000;border-color:var(--danger);}
+
+  .field{display:flex;flex-direction:column;gap:6px;min-width:0;}
+  .field > span{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;}
+  .field small{color:var(--ink-faint);font-size:.75rem;}
+  input[type=text],input[type=password],input[type=search],select{
+    width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);
+    background:var(--field);color:var(--ink);font-size:16px;
+  }
+  input:focus,select:focus{border-color:var(--ink-soft);outline:none;}
+  input.invalid{border-color:var(--danger);}
+
+  /* ---------- login ---------- */
+  .login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px;}
+  .login-card{
+    width:100%;max-width:380px;background:var(--surface);border:1.5px solid var(--line);
+    border-radius:14px;padding:28px 24px;display:flex;flex-direction:column;gap:18px;
+  }
+  .login-brand{display:flex;align-items:center;gap:12px;}
+  .login-brand img{width:48px;height:48px;border-radius:8px;border:1px solid var(--line);object-fit:cover;}
+  .login-brand h1{font-size:1.6rem;}
+  .login-brand p{margin:4px 0 0;color:var(--ink-soft);font-size:.85rem;}
+  .error{color:var(--danger);font-size:.85rem;margin:0;}
+
+  /* ---------- top bar ---------- */
+  .topbar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);}
+  .topbar-row{display:flex;align-items:center;justify-content:space-between;gap:12px;height:64px;}
+  .brand{display:flex;align-items:center;gap:10px;min-width:0;}
+  .brand img{width:38px;height:38px;border-radius:7px;border:1px solid var(--line);object-fit:cover;flex:none;}
+  .brand h1{font-size:1.25rem;white-space:nowrap;}
+  .brand h1 em{font-style:normal;color:var(--accent);}
+  .top-actions{display:flex;gap:8px;}
+  @media (max-width:520px){ .brand h1 .long{display:none;} }
+
+  main{padding:24px 0 120px;}
+  .intro{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px;}
+  .intro h2{font-size:2rem;}
+  .intro p{margin:6px 0 0;color:var(--ink-soft);font-size:.9rem;}
+  .notice{
+    border:1.5px dashed var(--line-strong);border-radius:10px;padding:12px 14px;
+    color:var(--ink-soft);font-size:.86rem;margin-bottom:16px;
+  }
+  .toolbar{display:flex;gap:10px;margin-bottom:14px;}
+  .toolbar input{flex:1;}
+
+  /* ---------- product list ---------- */
+  .list{display:flex;flex-direction:column;gap:10px;}
+  .item{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;overflow:hidden;}
+  .item.open{border-color:var(--line-strong);}
+  .item.off .row-main{opacity:.5;}
+  .row{display:flex;align-items:center;gap:12px;padding:10px 12px;}
+  .row-main{display:flex;align-items:center;gap:12px;flex:1;min-width:0;background:none;border:none;padding:0;text-align:left;cursor:pointer;}
+  .thumb{
+    width:52px;height:52px;border-radius:8px;background:var(--surface-alt);border:1px solid var(--line);
+    flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--ink-faint);
+  }
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .row-text{min-width:0;display:flex;flex-direction:column;gap:2px;}
+  .row-name{font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .row-meta{font-size:.76rem;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .row-meta .off-tag{color:var(--danger);}
+  .row-price{display:flex;align-items:center;gap:6px;flex:none;}
+  .row-price span{color:var(--ink-faint);font-size:.8rem;}
+  .row-price input{width:92px;padding:8px 10px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:16px;}
+  .chev{flex:none;width:20px;height:20px;color:var(--ink-faint);transition:transform .2s ease;}
+  .item.open .chev{transform:rotate(180deg);}
+  @media (max-width:560px){
+    .row{flex-wrap:wrap;}
+    .row-main{flex-basis:100%;}
+    .row-price{margin-left:64px;}
+  }
+
+  .editor{border-top:1px solid var(--line);padding:16px;display:flex;flex-direction:column;gap:18px;}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+  .grid .full{grid-column:1/-1;}
+  @media (max-width:560px){ .grid{grid-template-columns:1fr;} }
+
+  .switch{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:.88rem;font-weight:600;}
+  .switch input{appearance:none;width:42px;height:24px;border-radius:99px;background:var(--line-strong);position:relative;cursor:pointer;margin:0;flex:none;transition:background .2s ease;}
+  .switch input::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--ink);transition:transform .2s ease;}
+  .switch input:checked{background:var(--success);}
+  .switch input:checked::after{transform:translateX(18px);}
+
+  .photo-box{display:flex;gap:14px;align-items:center;}
+  .photo-box .thumb{width:84px;height:84px;}
+  .photo-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-start;}
+
+  .sub-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;}
+  .sub-head h3{margin:0;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;font-weight:600;}
+  .flavors{display:flex;flex-direction:column;gap:8px;}
+  .flavor{display:grid;grid-template-columns:minmax(0,1fr) 110px 44px auto;gap:8px;align-items:center;}
+  .flavor .thumb{width:44px;height:44px;cursor:pointer;}
+  .flavor .price-in{font-family:'IBM Plex Mono',monospace;text-align:right;}
+  .flavor-empty{color:var(--ink-faint);font-size:.84rem;margin:0;}
+  .hint{color:var(--ink-faint);font-size:.78rem;margin:6px 0 0;}
+  @media (max-width:560px){
+    .flavor{grid-template-columns:minmax(0,1fr) 92px 44px;}
+    .flavor .btn{grid-column:1/-1;justify-self:start;}
+  }
+  .editor-foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:14px;}
+  .editor-foot .group{display:flex;gap:8px;}
+
+  .empty{color:var(--ink-faint);text-align:center;padding:40px 0;border:1.5px dashed var(--line);border-radius:12px;}
+
+  /* ---------- save bar ---------- */
+  .savebar{
+    position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);
+    border-top:1.5px solid var(--line-strong);padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px));
+    transform:translateY(110%);transition:transform .25s ease;
+  }
+  .savebar.show{transform:none;}
+  .savebar-row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .savebar p{margin:0;font-size:.88rem;color:var(--ink-soft);}
+  .savebar .group{display:flex;gap:8px;}
+
+  .toast{
+    position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);opacity:0;z-index:40;
+    background:var(--ink);color:var(--bg);font-weight:600;font-size:.88rem;
+    padding:10px 16px;border-radius:8px;pointer-events:none;transition:opacity .2s ease,transform .2s ease;
+    max-width:calc(100% - 32px);text-align:center;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0);}
+  .toast.bad{background:var(--danger);color:#1a0000;}
+  .loading{color:var(--ink-faint);text-align:center;padding:60px 0;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<section class="login" id="loginView" hidden>
+  <form class="login-card" id="loginForm">
+    <div class="login-brand">
+      <img src="/img/logo.png" alt="">
+      <div>
+        <h1>Painel do dono</h1>
+        <p>Meta Suplementos</p>
+      </div>
+    </div>
+    <label class="field">
+      <span>Senha</span>
+      <input type="password" name="password" autocomplete="current-password" required autofocus>
+    </label>
+    <p class="error" id="loginError" hidden></p>
+    <button class="btn accent" type="submit" id="loginBtn">Entrar</button>
+  </form>
+</section>
+
+<!-- APP -->
+<div id="appView" hidden>
+  <header class="topbar">
+    <div class="wrap topbar-row">
+      <div class="brand">
+        <img src="/img/logo.png" alt="">
+        <h1>Painel <em>do dono</em><span class="long"> · Meta</span></h1>
+      </div>
+      <div class="top-actions">
+        <a class="btn ghost small" href="/" target="_blank" rel="noopener">Ver loja ↗</a>
+        <button class="btn ghost small" id="logoutBtn" type="button">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="intro">
+      <div>
+        <h2>Produtos</h2>
+        <p id="summary"></p>
+      </div>
+      <button class="btn accent" type="button" id="addBtn">+ Novo produto</button>
+    </div>
+    <div class="notice" id="firstRunNotice" hidden>
+      Estes são os produtos que estão hoje no site. Faça os ajustes e toque em <b>Salvar e publicar</b>. A partir daí, a loja passa a usar o que você salvar aqui.
+    </div>
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="Buscar produto…" aria-label="Buscar produto">
+    </div>
+    <div class="list" id="list"><p class="loading">Carregando produtos…</p></div>
+  </main>
+
+  <div class="savebar" id="savebar">
+    <div class="wrap savebar-row">
+      <p id="saveMsg">Alterações não salvas</p>
+      <div class="group">
+        <button class="btn ghost" type="button" id="discardBtn">Descartar</button>
+        <button class="btn accent" type="button" id="saveBtn">Salvar e publicar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" hidden>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="/catalogo-padrao.js"></script>
+<script>
+(function(){
+  var PASS_KEY = 'meta-admin-pass';
+  var CATEGORIES = ['Whey Protein','Creatina','Pré-Treino','Hipercalórico','Aminoácidos','Vitaminas','Barra Proteica'];
+
+  var password = null;
+  var products = [];      // modelo de edição
+  var savedSnapshot = ''; // JSON do que está publicado, para saber se há alterações
+  var neverSaved = false;
+  var openId = null;
+  var armedDelete = null;
+  var saving = false;
+  var pendingPhoto = null; // {id, flavorIndex} aguardando o seletor de arquivo
+
+  var $ = function(id){ return document.getElementById(id); };
+  var listEl = $('list');
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function fmtPrice(v){
+    return (v === null || v === undefined || v === '') ? '' : Number(v).toFixed(2).replace('.', ',');
+  }
+  function parsePrice(s){
+    s = String(s == null ? '' : s).trim().replace(/^R\$\s*/i, '');
+    if(!s) return null;
+    if(s.indexOf(',') >= 0) s = s.replace(/\./g, '').replace(',', '.');
+    var n = Number(s);
+    return (isFinite(n) && n >= 0) ? Math.round(n * 100) / 100 : NaN;
+  }
+  function newId(){
+    return 'p-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  }
+
+  var toastTimer = null;
+  function toast(msg, bad){
+    var t = $('toast');
+    t.textContent = msg;
+    t.classList.toggle('bad', !!bad);
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, bad ? 4200 : 2400);
+  }
+
+  // ---------- API ----------
+  function api(path, opts){
+    opts = opts || {};
+    var headers = {'x-admin-password': password || ''};
+    if(opts.body) headers['Content-Type'] = 'application/json';
+    return fetch(path, {method: opts.method || 'GET', headers: headers, body: opts.body ? JSON.stringify(opts.body) : undefined, cache:'no-store'})
+      .then(function(r){
+        return r.json().catch(function(){ return {}; }).then(function(data){
+          if(r.status === 401 && path !== '/api/admin/login'){ logout('Sua sessão expirou. Entre de novo.'); }
+          if(!r.ok) throw new Error(data.error || ('Erro ' + r.status));
+          return data;
+        });
+      });
+  }
+
+  // ---------- modelo ----------
+  // Converte o formato do site (flavor / flavors + mapas por sabor) em linhas editáveis.
+  function toModel(p){
+    var names = p.flavors && p.flavors.length ? p.flavors.slice() : (p.flavor ? [p.flavor] : []);
+    return {
+      id: p.id || newId(),
+      cat: p.cat || CATEGORIES[0],
+      name: p.name || '',
+      price: fmtPrice(p.price),
+      oldPrice: fmtPrice(p.oldPrice),
+      tag: p.tag || '',
+      macroLabel: p.macroLabel || '',
+      macroVal: p.macroVal || '',
+      photo: p.photo || '',
+      active: p.active !== false,
+      flavors: names.map(function(n){
+        return {
+          name: n,
+          price: p.pricesByFlavor && p.pricesByFlavor[n] !== undefined ? fmtPrice(p.pricesByFlavor[n]) : '',
+          photo: (p.photosByFlavor && p.photosByFlavor[n]) || ''
+        };
+      })
+    };
+  }
+  function toPayload(m){
+    var flavors = m.flavors.filter(function(f){ return f.name.trim(); });
+    var out = {
+      id: m.id, cat: m.cat, name: m.name.trim(), price: parsePrice(m.price),
+      oldPrice: parsePrice(m.oldPrice), tag: m.tag.trim() || null,
+      macroLabel: m.macroLabel.trim(), macroVal: m.macroVal.trim(),
+      photo: m.photo, active: m.active,
+      flavors: flavors.map(function(f){ return f.name.trim(); })
+    };
+    if(flavors.length > 1){
+      out.pricesByFlavor = {};
+      out.photosByFlavor = {};
+      flavors.forEach(function(f){
+        var fp = parsePrice(f.price);
+        if(fp !== null) out.pricesByFlavor[f.name.trim()] = fp;
+        if(f.photo) out.photosByFlavor[f.name.trim()] = f.photo;
+      });
+    }
+    return out;
+  }
+  function snapshot(){ return JSON.stringify(products); }
+  function isDirty(){ return neverSaved || snapshot() !== savedSnapshot; }
+  function findModel(id){
+    for(var i = 0; i < products.length; i++){ if(products[i].id === id) return products[i]; }
+    return null;
+  }
+
+  // ---------- render ----------
+  var ICON_BOX = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>';
+
+  function thumb(src){
+    return '<div class="thumb">' + (src ? '<img src="' + esc(src) + '" alt="" loading="lazy">' : ICON_BOX) + '</div>';
+  }
+
+  function renderSummary(){
+    var active = products.filter(function(p){ return p.active; }).length;
+    $('summary').textContent = products.length + (products.length === 1 ? ' produto' : ' produtos') +
+      ' · ' + active + ' à venda' + (products.length - active ? ' · ' + (products.length - active) + ' oculto(s)' : '');
+  }
+
+  function renderEditor(p, idx){
+    var catOptions = CATEGORIES.map(function(c){
+      return '<option' + (c === p.cat ? ' selected' : '') + '>' + esc(c) + '</option>';
+    }).join('');
+    var flavorRows = p.flavors.length ? p.flavors.map(function(f, i){
+      return '<div class="flavor">' +
+        '<input type="text" data-flavor-field="name" data-fi="' + i + '" value="' + esc(f.name) + '" placeholder="Nome do sabor" aria-label="Nome do sabor">' +
+        '<input type="text" class="price-in" inputmode="decimal" data-flavor-field="price" data-fi="' + i + '" value="' + esc(f.price) + '" placeholder="Mesmo" aria-label="Preço deste sabor">' +
+        '<button type="button" class="thumb" data-action="flavor-photo" data-fi="' + i + '" title="Foto deste sabor" aria-label="Foto deste sabor">' + (f.photo ? '<img src="' + esc(f.photo) + '" alt="">' : ICON_BOX) + '</button>' +
+        '<button type="button" class="btn ghost small" data-action="remove-flavor" data-fi="' + i + '">Remover</button>' +
+      '</div>';
+    }).join('') : '<p class="flavor-empty">Sem sabor definido.</p>';
+
+    return '<div class="editor">' +
+      '<label class="switch"><input type="checkbox" data-field="active"' + (p.active ? ' checked' : '') + '> ' + (p.active ? 'À venda no site' : 'Oculto do site') + '</label>' +
+      '<div class="grid">' +
+        '<label class="field full"><span>Nome</span><input type="text" data-field="name" value="' + esc(p.name) + '" maxlength="120"></label>' +
+        '<label class="field"><span>Categoria</span><select data-field="cat">' + catOptions + '</select></label>' +
+        '<label class="field"><span>Selo</span><input type="text" data-field="tag" value="' + esc(p.tag) + '" maxlength="20" placeholder="Ex.: Novo, Promo"></label>' +
+        '<label class="field"><span>Preço (R$)</span><input type="text" inputmode="decimal" data-field="price" value="' + esc(p.price) + '" placeholder="0,00"></label>' +
+        '<label class="field"><span>Preço antigo (riscado)</span><input type="text" inputmode="decimal" data-field="oldPrice" value="' + esc(p.oldPrice) + '" placeholder="Opcional"></label>' +
+        '<label class="field"><span>Destaque nutricional</span><input type="text" data-field="macroLabel" value="' + esc(p.macroLabel) + '" maxlength="40" placeholder="Ex.: Proteína/dose"></label>' +
+        '<label class="field"><span>Valor</span><input type="text" data-field="macroVal" value="' + esc(p.macroVal) + '" maxlength="20" placeholder="Ex.: 24g"></label>' +
+      '</div>' +
+      '<div class="field"><span>Foto principal</span>' +
+        '<div class="photo-box">' + thumb(p.photo) +
+          '<div class="photo-actions">' +
+            '<button type="button" class="btn small" data-action="photo">' + (p.photo ? 'Trocar foto' : 'Enviar foto') + '</button>' +
+            (p.photo ? '<button type="button" class="btn ghost small" data-action="clear-photo">Remover foto</button>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div>' +
+        '<div class="sub-head"><h3>Sabores</h3><button type="button" class="btn small" data-action="add-flavor">+ Sabor</button></div>' +
+        '<div class="flavors">' + flavorRows + '</div>' +
+        '<p class="hint">Preço do sabor: deixe em branco para usar o preço do produto. Toque no quadradinho para pôr uma foto só daquele sabor.</p>' +
+      '</div>' +
+      '<div class="editor-foot">' +
+        '<div class="group">' +
+          '<button type="button" class="btn small" data-action="up"' + (idx === 0 ? ' disabled' : '') + '>↑ Subir</button>' +
+          '<button type="button" class="btn small" data-action="down"' + (idx === products.length - 1 ? ' disabled' : '') + '>↓ Descer</button>' +
+        '</div>' +
+        '<button type="button" class="btn small danger' + (armedDelete === p.id ? ' armed' : '') + '" data-action="delete">' + (armedDelete === p.id ? 'Toque de novo para excluir' : 'Excluir produto') + '</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function rowMeta(p){
+    var bits = [p.cat];
+    if(p.flavors.length > 1) bits.push(p.flavors.length + ' sabores');
+    else if(p.flavors.length === 1) bits.push(p.flavors[0].name);
+    var meta = esc(bits.join(' · '));
+    if(!p.active) meta = '<span class="off-tag">Oculto</span> · ' + meta;
+    return meta;
+  }
+
+  function render(){
+    renderSummary();
+    var q = $('search').value.trim().toLowerCase();
+    var visible = products.filter(function(p){ return !q || p.name.toLowerCase().indexOf(q) >= 0 || p.cat.toLowerCase().indexOf(q) >= 0; });
+    if(!visible.length){
+      listEl.innerHTML = '<p class="empty">' + (products.length ? 'Nenhum produto encontrado.' : 'Nenhum produto ainda. Toque em “+ Novo produto”.') + '</p>';
+    } else {
+      listEl.innerHTML = visible.map(function(p){
+        var idx = products.indexOf(p);
+        var open = openId === p.id;
+        return '<div class="item' + (open ? ' open' : '') + (p.active ? '' : ' off') + '" data-id="' + esc(p.id) + '">' +
+          '<div class="row">' +
+            '<button type="button" class="row-main" data-action="toggle" aria-expanded="' + open + '">' +
+              thumb(p.photo) +
+              '<span class="row-text"><span class="row-name">' + esc(p.name || 'Produto sem nome') + '</span><span class="row-meta">' + rowMeta(p) + '</span></span>' +
+            '</button>' +
+            '<label class="row-price"><span>R$</span><input type="text" inputmode="decimal" data-field="price" value="' + esc(p.price) + '" aria-label="Preço de ' + esc(p.name) + '"></label>' +
+            '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>' +
+          '</div>' +
+          (open ? renderEditor(p, idx) : '') +
+        '</div>';
+      }).join('');
+    }
+    updateSaveBar();
+  }
+
+  function updateSaveBar(){
+    var dirty = isDirty();
+    $('savebar').classList.toggle('show', dirty || saving);
+    $('saveBtn').disabled = saving;
+    $('discardBtn').disabled = saving || neverSaved;
+    $('saveMsg').textContent = saving ? 'Salvando…' : (neverSaved ? 'Catálogo ainda não publicado pelo painel' : 'Alterações não salvas');
+  }
+
+  // ---------- edição ----------
+  listEl.addEventListener('input', function(e){
+    var item = e.target.closest('.item');
+    if(!item) return;
+    var p = findModel(item.getAttribute('data-id'));
+    if(!p) return;
+    var field = e.target.getAttribute('data-field');
+    var ff = e.target.getAttribute('data-flavor-field');
+    if(field && field !== 'active'){
+      p[field] = e.target.value;
+      if(field === 'price'){
+        // mantém o preço do resumo e do editor iguais
+        item.querySelectorAll('[data-field="price"]').forEach(function(el){ if(el !== e.target) el.value = e.target.value; });
+      }
+      if(field === 'price' || field === 'oldPrice') e.target.classList.toggle('invalid', isNaN(parsePrice(e.target.value)) || (field === 'price' && parsePrice(e.target.value) === null));
+      if(field === 'name') item.querySelector('.row-name').textContent = p.name || 'Produto sem nome';
+    } else if(ff){
+      var f = p.flavors[+e.target.getAttribute('data-fi')];
+      f[ff] = e.target.value;
+      if(ff === 'price') e.target.classList.toggle('invalid', isNaN(parsePrice(e.target.value)));
+      item.querySelector('.row-meta').innerHTML = rowMeta(p);
+    }
+    updateSaveBar();
+  });
+
+  listEl.addEventListener('change', function(e){
+    var item = e.target.closest('.item');
+    if(!item) return;
+    var p = findModel(item.getAttribute('data-id'));
+    var field = e.target.getAttribute('data-field');
+    if(field === 'active'){ p.active = e.target.checked; render(); }
+    if(field === 'cat'){ p.cat = e.target.value; item.querySelector('.row-meta').innerHTML = rowMeta(p); updateSaveBar(); }
+  });
+
+  listEl.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-action]');
+    if(!btn) return;
+    var item = btn.closest('.item');
+    var p = findModel(item.getAttribute('data-id'));
+    var idx = products.indexOf(p);
+    var action = btn.getAttribute('data-action');
+    if(action !== 'delete') armedDelete = null;
+
+    if(action === 'toggle'){ openId = openId === p.id ? null : p.id; render(); }
+    else if(action === 'add-flavor'){
+      p.flavors.push({name:'', price:'', photo:''});
+      render();
+      var inputs = listEl.querySelectorAll('.item.open [data-flavor-field="name"]');
+      if(inputs.length) inputs[inputs.length - 1].focus();
+    }
+    else if(action === 'remove-flavor'){ p.flavors.splice(+btn.getAttribute('data-fi'), 1); render(); }
+    else if(action === 'photo'){ pickPhoto(p.id, null); }
+    else if(action === 'flavor-photo'){ pickPhoto(p.id, +btn.getAttribute('data-fi')); }
+    else if(action === 'clear-photo'){ p.photo = ''; render(); }
+    else if(action === 'up' && idx > 0){ products.splice(idx - 1, 0, products.splice(idx, 1)[0]); render(); }
+    else if(action === 'down' && idx < products.length - 1){ products.splice(idx + 1, 0, products.splice(idx, 1)[0]); render(); }
+    else if(action === 'delete'){
+      if(armedDelete === p.id){
+        products.splice(idx, 1);
+        armedDelete = null;
+        openId = null;
+        toast('Produto removido. Salve para publicar.');
+      } else {
+        armedDelete = p.id;
+      }
+      render();
+    }
+  });
+
+  $('addBtn').addEventListener('click', function(){
+    var p = toModel({id: newId(), cat: CATEGORIES[0], name: '', price: null, active: true});
+    products.unshift(p);
+    openId = p.id;
+    $('search').value = '';
+    render();
+    var nameInput = listEl.querySelector('.item.open [data-field="name"]');
+    if(nameInput) nameInput.focus();
+  });
+
+  $('search').addEventListener('input', render);
+
+  // ---------- fotos ----------
+  function pickPhoto(id, flavorIndex){
+    pendingPhoto = {id: id, flavorIndex: flavorIndex};
+    $('fileInput').value = '';
+    $('fileInput').click();
+  }
+
+  // Reduz a foto no próprio aparelho antes de enviar (máx. 1200px), para a loja carregar rápido.
+  function shrinkImage(file){
+    return new Promise(function(resolve, reject){
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function(){
+        var max = 1200;
+        var scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.naturalWidth * scale);
+        canvas.height = Math.round(img.naturalHeight * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        var out = canvas.toDataURL('image/webp', 0.86);
+        if(out.indexOf('data:image/webp') !== 0){
+          out = file.type === 'image/png' ? canvas.toDataURL('image/png') : canvas.toDataURL('image/jpeg', 0.86);
+        }
+        resolve(out);
+      };
+      img.onerror = function(){ URL.revokeObjectURL(url); reject(new Error('Não consegui abrir essa imagem.')); };
+      img.src = url;
+    });
+  }
+
+  $('fileInput').addEventListener('change', function(){
+    var file = this.files && this.files[0];
+    var target = pendingPhoto;
+    pendingPhoto = null;
+    if(!file || !target) return;
+    var p = findModel(target.id);
+    if(!p) return;
+    toast('Enviando foto…');
+    shrinkImage(file)
+      .then(function(dataUrl){
+        var label = p.name + (target.flavorIndex !== null && p.flavors[target.flavorIndex] ? '-' + p.flavors[target.flavorIndex].name : '');
+        return api('/api/admin/upload', {method:'POST', body:{dataUrl: dataUrl, name: label}});
+      })
+      .then(function(res){
+        if(target.flavorIndex !== null && p.flavors[target.flavorIndex]) p.flavors[target.flavorIndex].photo = res.url;
+        else p.photo = res.url;
+        render();
+        toast('Foto enviada. Salve para publicar.');
+      })
+      .catch(function(err){ toast(err.message, true); });
+  });
+
+  // ---------- salvar ----------
+  function validate(){
+    for(var i = 0; i < products.length; i++){
+      var p = products[i];
+      var label = p.name.trim() || 'Produto ' + (i + 1);
+      if(!p.name.trim()) return {p: p, msg: 'Um produto está sem nome.'};
+      var price = parsePrice(p.price);
+      if(price === null || isNaN(price)) return {p: p, msg: 'Preço inválido em “' + label + '”.'};
+      if(isNaN(parsePrice(p.oldPrice))) return {p: p, msg: 'Preço antigo inválido em “' + label + '”.'};
+      for(var j = 0; j < p.flavors.length; j++){
+        if(isNaN(parsePrice(p.flavors[j].price))) return {p: p, msg: 'Preço de sabor inválido em “' + label + '”.'};
+      }
+    }
+    return null;
+  }
+
+  $('saveBtn').addEventListener('click', function(){
+    var problem = validate();
+    if(problem){
+      openId = problem.p.id;
+      $('search').value = '';
+      render();
+      toast(problem.msg, true);
+      return;
+    }
+    saving = true;
+    updateSaveBar();
+    api('/api/admin/catalog', {method:'PUT', body:{products: products.map(toPayload)}})
+      .then(function(saved){
+        products = saved.products.map(toModel);
+        savedSnapshot = snapshot();
+        neverSaved = false;
+        $('firstRunNotice').hidden = true;
+        saving = false;
+        render();
+        toast('Publicado! A loja já mostra as mudanças.');
+      })
+      .catch(function(err){
+        saving = false;
+        updateSaveBar();
+        toast(err.message, true);
+      });
+  });
+
+  $('discardBtn').addEventListener('click', function(){
+    products = JSON.parse(savedSnapshot);
+    openId = null;
+    armedDelete = null;
+    render();
+    toast('Alterações descartadas.');
+  });
+
+  window.addEventListener('beforeunload', function(e){
+    if(password && !neverSaved && isDirty()){ e.preventDefault(); e.returnValue = ''; }
+  });
+
+  // ---------- login ----------
+  function loadCatalog(){
+    listEl.innerHTML = '<p class="loading">Carregando produtos…</p>';
+    return api('/api/admin/catalog').then(function(data){
+      if(data.categories) CATEGORIES = data.categories;
+      neverSaved = !data.products;
+      var source = data.products || JSON.parse(JSON.stringify(window.DEFAULT_PRODUCTS || []));
+      products = source.map(toModel);
+      savedSnapshot = snapshot();
+      $('firstRunNotice').hidden = !neverSaved;
+      render();
+    }).catch(function(err){
+      listEl.innerHTML = '<p class="empty">' + esc(err.message) + '</p>';
+    });
+  }
+
+  function showApp(){
+    $('loginView').hidden = true;
+    $('appView').hidden = false;
+    loadCatalog();
+  }
+
+  function logout(msg){
+    password = null;
+    try{ sessionStorage.removeItem(PASS_KEY); }catch(e){}
+    $('appView').hidden = true;
+    $('loginView').hidden = false;
+    var err = $('loginError');
+    err.hidden = !msg;
+    err.textContent = msg || '';
+  }
+
+  $('logoutBtn').addEventListener('click', function(){
+    if(!neverSaved && isDirty()){
+      toast('Salve ou descarte as alterações antes de sair.', true);
+      return;
+    }
+    logout();
+  });
+
+  $('loginForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var btn = $('loginBtn');
+    var err = $('loginError');
+    password = this.password.value;
+    btn.disabled = true;
+    btn.textContent = 'Entrando…';
+    err.hidden = true;
+    api('/api/admin/login', {method:'POST'})
+      .then(function(){
+        try{ sessionStorage.setItem(PASS_KEY, password); }catch(e2){}
+        e.target.reset();
+        showApp();
+      })
+      .catch(function(ex){
+        password = null;
+        err.textContent = ex.message;
+        err.hidden = false;
+      })
+      .then(function(){ btn.disabled = false; btn.textContent = 'Entrar'; });
+  });
+
+  try{ password = sessionStorage.getItem(PASS_KEY); }catch(e){ password = null; }
+  if(password){ showApp(); } else { $('loginView').hidden = false; }
+})();
+</script>
+</body>
+</html>
